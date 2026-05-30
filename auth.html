@@ -258,11 +258,6 @@
         <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-box" data-index="5">
       </div>
 
-      <div style="background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:13px;border:1px dashed var(--primary);">
-        <span style="color:var(--text-muted);">Demo code: </span>
-        <span id="demo-code" style="color:var(--accent);font-weight:700;font-size:18px;letter-spacing:4px;"></span>
-      </div>
-
       <div class="code-error" id="code-error">Incorrect code. Try again.</div>
 
       <button class="btn btn-primary" id="verify-btn">Verify & Continue</button>
@@ -272,9 +267,30 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>
+    // ── EmailJS config ──────────────────────────────────────────
+    // 1. Sign up at https://www.emailjs.com/ (free)
+    // 2. Connect a Gmail (or other) email service
+    // 3. Create an email template with variables: {{to_email}}, {{code}}
+    // 4. Paste the IDs below:
+    const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
+    const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
+    const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+    // ────────────────────────────────────────────────────────────
+
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+
     let generatedCode = null;
     let pendingEmail = null;
+    let isSending = false;
+
+    function sendCode(email, code) {
+      return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: email,
+        code: code,
+      });
+    }
 
     // Sign-up
     document.getElementById('signup-form').addEventListener('submit', function (e) {
@@ -284,6 +300,7 @@
       const password = document.getElementById('password').value;
       const confirm = document.getElementById('confirm').value;
       const errorEl = document.getElementById('error-msg');
+      const submitBtn = this.querySelector('button[type="submit"]');
 
       if (password !== confirm) {
         errorEl.textContent = 'Passwords do not match.';
@@ -293,7 +310,6 @@
 
       errorEl.style.display = 'none';
 
-      // Check if email already registered
       const users = JSON.parse(localStorage.getItem('jchat_users') || '[]');
       if (users.find(u => u.email === email)) {
         errorEl.textContent = 'An account with this email already exists.';
@@ -301,17 +317,27 @@
         return;
       }
 
-      // Generate 6-digit code and "send" to email
+      if (isSending) return;
+      isSending = true;
+      submitBtn.textContent = 'Sending code…';
+      submitBtn.disabled = true;
+
       generatedCode = String(Math.floor(100000 + Math.random() * 900000));
       pendingEmail = email;
 
-      document.getElementById('verify-email').textContent = email;
-      document.getElementById('demo-code').textContent = generatedCode;
-      document.getElementById('signup-card').style.display = 'none';
-      document.getElementById('verify-overlay').classList.add('active');
-
-      // Focus first box
-      document.querySelector('.code-box').focus();
+      sendCode(email, generatedCode).then(() => {
+        document.getElementById('verify-email').textContent = email;
+        document.getElementById('signup-card').style.display = 'none';
+        document.getElementById('verify-overlay').classList.add('active');
+        document.querySelector('.code-box').focus();
+      }).catch(() => {
+        errorEl.textContent = 'Failed to send code. Check your EmailJS config.';
+        errorEl.style.display = 'block';
+      }).finally(() => {
+        isSending = false;
+        submitBtn.textContent = 'Sign Up';
+        submitBtn.disabled = false;
+      });
     });
 
     // Code input auto-advance
@@ -355,7 +381,6 @@
 
       errorEl.style.display = 'none';
 
-      // Save user
       const users = JSON.parse(localStorage.getItem('jchat_users') || '[]');
       users.push({ email: pendingEmail, password: document.getElementById('password').value });
       localStorage.setItem('jchat_users', JSON.stringify(users));
@@ -368,7 +393,7 @@
     document.getElementById('resend-link').addEventListener('click', function (e) {
       e.preventDefault();
       generatedCode = String(Math.floor(100000 + Math.random() * 900000));
-      document.getElementById('demo-code').textContent = generatedCode;
+      sendCode(pendingEmail, generatedCode).catch(() => {});
       codeBoxes.forEach(b => b.value = '');
       codeBoxes[0].focus();
       document.getElementById('code-error').style.display = 'none';
