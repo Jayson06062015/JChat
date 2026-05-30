@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JChat - Create Account</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0d0d1a;
+      --surface: #1a1a2e;
+      --surface2: #252542;
+      --primary: #9b59b6;
+      --primary-hover: #af6dc9;
+      --accent: #bb86fc;
+      --text: #e0e0e0;
+      --text-muted: #8888aa;
+      --border: #2a2a44;
+      --error: #cf6679;
+      --success: #4caf50;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: border .2s, box-shadow .2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(155,89,182,.25);
+    }
+
+    input::placeholder { color: #555577; }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+
+    .btn:active { transform: scale(.98); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
+
+    .btn-secondary:hover { background: var(--surface2); }
+
+    .divider {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      margin: 18px 0;
+      position: relative;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 42%;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+
+    .error-msg {
+      color: var(--error);
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* ---- Verification overlay ---- */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.65);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .overlay.active { display: flex; }
+
+    .overlay .card {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 20px;
+      text-align: center;
+    }
+
+    .overlay .card h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .overlay .card p {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .code-inputs {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .code-inputs input {
+      width: 48px;
+      height: 52px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      padding: 0;
+    }
+
+    .code-error {
+      color: var(--error);
+      font-size: 13px;
+      margin-bottom: 12px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sign-up card -->
+  <div class="container" id="signup-card">
+    <div class="card">
+      <div class="logo">
+        <h1>JChat</h1>
+        <p>Create your account. It's free.</p>
+      </div>
+
+      <form id="signup-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Create a password" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label for="confirm">Confirm Password</label>
+          <input type="password" id="confirm" placeholder="Confirm your password" required minlength="6">
+        </div>
+        <div class="error-msg" id="error-msg">Passwords do not match.</div>
+        <button type="submit" class="btn btn-primary">Sign Up</button>
+      </form>
+
+      <div class="divider">or</div>
+
+      <button class="btn btn-secondary" onclick="location.href='index.html'">Already Have an Account?</button>
+    </div>
+  </div>
+
+  <!-- Verification overlay -->
+  <div class="overlay" id="verify-overlay">
+    <div class="card">
+      <h2>Check Your Email</h2>
+      <p>We sent a 6-digit code to <span id="verify-email" style="color:var(--accent);font-weight:600;"></span></p>
+
+      <div class="code-inputs" id="code-inputs">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-box" data-index="0">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-box" data-index="1">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-box" data-index="2">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-box" data-index="3">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-box" data-index="4">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-box" data-index="5">
+      </div>
+
+      <div class="code-error" id="code-error">Incorrect code. Try again.</div>
+
+      <button class="btn btn-primary" id="verify-btn">Verify & Continue</button>
+      <p style="margin-top:14px;font-size:12px;color:var(--text-muted);">
+        Didn't get it? <a href="#" id="resend-link" style="color:var(--accent);text-decoration:none;font-weight:600;">Resend</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    let generatedCode = null;
+    let pendingEmail = null;
+
+    // Sign-up
+    document.getElementById('signup-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm').value;
+      const errorEl = document.getElementById('error-msg');
+
+      if (password !== confirm) {
+        errorEl.textContent = 'Passwords do not match.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      errorEl.style.display = 'none';
+
+      // Check if email already registered
+      const users = JSON.parse(localStorage.getItem('jchat_users') || '[]');
+      if (users.find(u => u.email === email)) {
+        errorEl.textContent = 'An account with this email already exists.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      // Generate 6-digit code and "send" to email
+      generatedCode = String(Math.floor(100000 + Math.random() * 900000));
+      pendingEmail = email;
+
+      document.getElementById('verify-email').textContent = email;
+      document.getElementById('signup-card').style.display = 'none';
+      document.getElementById('verify-overlay').classList.add('active');
+
+      // Focus first box
+      document.querySelector('.code-box').focus();
+
+      // For demo purposes, show code in console
+      console.log('Verification code for ' + email + ': ' + generatedCode);
+    });
+
+    // Code input auto-advance
+    const codeBoxes = document.querySelectorAll('.code-box');
+    codeBoxes.forEach((box, i) => {
+      box.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/, '');
+        if (this.value && i < codeBoxes.length - 1) {
+          codeBoxes[i + 1].focus();
+        }
+      });
+
+      box.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' && !this.value && i > 0) {
+          codeBoxes[i - 1].focus();
+        }
+        if (e.key === 'Enter') {
+          document.getElementById('verify-btn').click();
+        }
+      });
+    });
+
+    // Verify code
+    document.getElementById('verify-btn').addEventListener('click', function () {
+      const code = Array.from(codeBoxes).map(b => b.value).join('');
+      const errorEl = document.getElementById('code-error');
+
+      if (code.length !== 6) {
+        errorEl.textContent = 'Please enter the full 6-digit code.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      if (code !== generatedCode) {
+        errorEl.textContent = 'Incorrect code. Try again.';
+        errorEl.style.display = 'block';
+        codeBoxes.forEach(b => b.value = '');
+        codeBoxes[0].focus();
+        return;
+      }
+
+      errorEl.style.display = 'none';
+
+      // Save user
+      const users = JSON.parse(localStorage.getItem('jchat_users') || '[]');
+      users.push({ email: pendingEmail, password: document.getElementById('password').value });
+      localStorage.setItem('jchat_users', JSON.stringify(users));
+      localStorage.setItem('jchat_session', JSON.stringify({ email: pendingEmail }));
+
+      window.location.href = 'dashboard.html';
+    });
+
+    // Resend
+    document.getElementById('resend-link').addEventListener('click', function (e) {
+      e.preventDefault();
+      generatedCode = String(Math.floor(100000 + Math.random() * 900000));
+      console.log('New code for ' + pendingEmail + ': ' + generatedCode);
+      codeBoxes.forEach(b => b.value = '');
+      codeBoxes[0].focus();
+      document.getElementById('code-error').style.display = 'none';
+    });
+  </script>
+</body>
+</html>
