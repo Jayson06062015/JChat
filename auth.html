@@ -267,7 +267,7 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
     // ── EmailJS config ──────────────────────────────────────────
     // 1. Sign up at https://www.emailjs.com/ (free)
@@ -289,6 +289,8 @@
       return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         to_email: email,
         code: code,
+      }).then((response) => {
+        console.log('EmailJS success:', response.status, response.text);
       });
     }
 
