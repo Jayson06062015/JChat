@@ -274,7 +274,7 @@
     // 3. Create an email template with variables: {{to_email}}, {{code}}
     // 4. Paste the IDs below:
     const EMAILJS_PUBLIC_KEY  = 'ejS9HE1aEn7f-q34H';
-    const EMAILJS_SERVICE_ID  = 'service_diqfc5m';
+    const EMAILJS_SERVICE_ID  = 'service_rlv15bd';
     const EMAILJS_TEMPLATE_ID = 'template_40e1a3d';
     // ────────────────────────────────────────────────────────────
 
@@ -292,7 +292,6 @@
           code: code,
         },
       };
-      console.log('EmailJS payload:', JSON.stringify(payload));
       return fetch('https://api.emailjs.com/api/v1.0/email/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
