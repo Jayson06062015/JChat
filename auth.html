@@ -258,6 +258,11 @@
         <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="code-box" data-index="5">
       </div>
 
+      <div style="background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:13px;border:1px dashed var(--primary);">
+        <span style="color:var(--text-muted);">Demo code: </span>
+        <span id="demo-code" style="color:var(--accent);font-weight:700;font-size:18px;letter-spacing:4px;"></span>
+      </div>
+
       <div class="code-error" id="code-error">Incorrect code. Try again.</div>
 
       <button class="btn btn-primary" id="verify-btn">Verify & Continue</button>
@@ -301,14 +306,12 @@
       pendingEmail = email;
 
       document.getElementById('verify-email').textContent = email;
+      document.getElementById('demo-code').textContent = generatedCode;
       document.getElementById('signup-card').style.display = 'none';
       document.getElementById('verify-overlay').classList.add('active');
 
       // Focus first box
       document.querySelector('.code-box').focus();
-
-      // For demo purposes, show code in console
-      console.log('Verification code for ' + email + ': ' + generatedCode);
     });
 
     // Code input auto-advance
@@ -365,7 +368,7 @@
     document.getElementById('resend-link').addEventListener('click', function (e) {
       e.preventDefault();
       generatedCode = String(Math.floor(100000 + Math.random() * 900000));
-      console.log('New code for ' + pendingEmail + ': ' + generatedCode);
+      document.getElementById('demo-code').textContent = generatedCode;
       codeBoxes.forEach(b => b.value = '');
       codeBoxes[0].focus();
       document.getElementById('code-error').style.display = 'none';
